@@ -18,15 +18,15 @@ jobs:
           url: https://product-team.saas-preprod.beescloud.com/
           username: ${{ secrets.CJOC_USERNAME }}
           token: ${{ secrets.CJOC_TOKEN }}
-          job-name: TestJob
+          job-name: JenkinsBuild
 
       - id: expose-output
         name: Expose Jenkins Job Output
         uses: docker://exozet/jq:1.6-r0
         if: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).TESTVAR == '19' }}
         run: |
-          echo "BUILD_NUMBER: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).BUILD_NUMBER }}"
-          echo "TESTVAR: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).TESTVAR }}"
+          echo "BUILD_NUMBER: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).artifactName }}"
+          echo "TESTVAR: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).version }}"
 
   print-jenkins-outputs:
     needs: [jenkins-run-job-with-output]
