@@ -34,7 +34,7 @@ jobs:
         uses: https://github.com/cloudbees-io/register-build-artifact@v1
         with:
           name: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).artifactName }}
-          version: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.version }}
-          url: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.url }}
-          digest: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.digest }}
+          version: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).version }}
+          url: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).url }}
+          digest: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).digest }}
          
