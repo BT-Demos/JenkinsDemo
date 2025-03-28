@@ -1,0 +1,41 @@
+
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: Trigger Jenkins Job
+
+on:
+  workflow_dispatch:
+
+jobs:
+  jenkins-run-job-with-output:
+    outputs:
+      jenkins_output: ${{ steps.jenkins-job.outputs.jenkins_output }}
+    steps:
+      - id: jenkins-job
+        name: Run Jenkins Job
+        uses: cloudbees-io/jenkins-run-job@v2
+        with:
+          url: https://product-team.saas-preprod.beescloud.com/
+          username: ${{ secrets.CJOC_USERNAME }}
+          token: ${{ secrets.CJOC_TOKEN }}
+          job-name: TestJob
+
+      - id: expose-output
+        name: Expose Jenkins Job Output
+        uses: docker://exozet/jq:1.6-r0
+        if: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).TESTVAR == '19' }}
+        run: |
+          echo "BUILD_NUMBER: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).BUILD_NUMBER }}"
+          echo "TESTVAR: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).TESTVAR }}"
+
+  print-jenkins-outputs:
+    needs: [jenkins-run-job-with-output]
+    steps:
+      - id: print-jenkins-output
+        name: Print Jenkins Job Output
+        if: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).TESTVAR == '19' }}
+        uses: docker://exozet/jq:1.6-r0
+        run: |
+          echo "BUILD_NUMBER: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).BUILD_NUMBER }}"
+          echo "TESTVAR: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).TESTVAR }}"
+          
