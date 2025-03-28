@@ -23,19 +23,18 @@ jobs:
       - id: expose-output
         name: Expose Jenkins Job Output
         uses: docker://exozet/jq:1.6-r0
-        if: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).TESTVAR == '19' }}
         run: |
-          echo "BUILD_NUMBER: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).artifactName }}"
-          echo "TESTVAR: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).version }}"
+          echo "Artifact Name: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).artifactName }}"
+          echo "Version: ${{ fromJSON(steps.jenkins-job.outputs.jenkins_output).version }}"
 
-  print-jenkins-outputs:
+  register-build-artifact:
     needs: [jenkins-run-job-with-output]
     steps:
-      - id: print-jenkins-output
-        name: Print Jenkins Job Output
-        if: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).TESTVAR == '19' }}
-        uses: docker://exozet/jq:1.6-r0
-        run: |
-          echo "BUILD_NUMBER: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).BUILD_NUMBER }}"
-          echo "TESTVAR: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).TESTVAR }}"
-          
+      - name: register-build-artifacts
+        uses: https://github.com/cloudbees-io/register-build-artifact@v1
+        with:
+          name: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.jenkins_output).artifactName }}
+          version: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.version }}
+          url: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.url }}
+          digest: ${{ fromJSON(needs.jenkins-run-job-with-output.outputs.digest }}
+         
